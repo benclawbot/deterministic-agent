@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "deterministic-agent"
+version = "0.1.0"
+description = "Deterministic guardrails for AI coding agents: typed I/O, pre-flight gates, law lints, and replay checks."
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [{ name = "Tom" }]
+requires-python = ">=3.10"
+dependencies = [
+    "jsonschema>=4.21",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=4.1",
+    "ruff>=0.4",
+]
+
+[project.scripts]
+deterministic-agent = "deterministic_agent.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["core"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

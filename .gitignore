@@ -1,0 +1,20 @@
+# Build artifacts
+build/
+dist/
+*.egg-info/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.coverage
+.ruff_cache/
+
+# Virtual envs
+.venv/
+venv/
+
+# Local config (user-specific, not shipped)
+deterministic-agent.local.yaml
+
+# OS
+.DS_Store

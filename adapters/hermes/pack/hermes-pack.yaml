@@ -1,0 +1,37 @@
+# hermes-pack.yaml — portable plugin manifest for hermes plugins install
+name: deterministic-agent
+version: 0.1.0
+description: |
+  Deterministic guardrails for AI coding agents: typed tool I/O schemas,
+  pre-flight gates for destructive actions, LAWS.md linting per skill,
+  and replay regression checks for research workflows.
+license: MIT
+homepage: https://github.com/<owner>/deterministic-agent
+
+# Files included in the portable package
+includes:
+  - core/deterministic_agent/
+  - adapters/hermes/hooks/
+  - laws/examples/
+  - pyproject.toml
+  - README.md
+
+# Hermes-specific hooks; Claude/OpenCode adapters in their own packages.
+hooks:
+  - event: pre_tool_use
+    command: adapters/hermes/hooks/pre_tool_use.sh
+    description: Gate destructive actions (writes, network, kills) before they run.
+  - event: post_tool_use
+    command: adapters/hermes/hooks/post_tool_use.sh
+    description: Validate tool output shape against JSON Schema.
+  - event: skill_end
+    command: adapters/hermes/hooks/skill_end.sh
+    description: Lint skill output against the skill's LAWS.md if present.
+  - event: cron_tick
+    command: adapters/hermes/hooks/replay.sh
+    description: Replay-check research runs against the previous baseline.
+
+# Post-install: write default gates config if missing
+post_install:
+  - run: deterministic-agent init
+    description: Create ~/.config/deterministic-agent/gates.yaml with safe defaults.
