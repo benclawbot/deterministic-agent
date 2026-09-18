@@ -62,25 +62,28 @@ def _is_under(path: str, roots: list[str], cwd: str) -> bool:
     return False
 
 
-# crude but effective: matches curl/wget/nc/httpie to anything with a host
+# crude but effective: matches URLs anywhere, optionally preceded by curl/wget/nc or HTTP verb.
+# Two-tier: prefer tool-prefixed capture (so we can attribute the call), then fall
+# back to bare URLs in the command string (for "GET https://x", "POST https://y", etc.).
 _NET_PATTERNS = [
-    re.compile(r"\b(curl|wget|nc|http|https)\b.*?(?:-X|--request)?\s*(?:GET|POST|PUT|DELETE)?\s*[\"']?(https?://[^\s\"']+)", re.I),
-    re.compile(r"\bcurl\b\s+[^|;]*?(https?://[^\s\"']+)", re.I),
+    # tool + URL: curl/wget/nc followed by a URL
+    re.compile(r"\b(?:curl|wget|nc)\b[^|\n;]*?(https?://[^\s\"'<>]+)", re.I),
+    # bare URL anywhere in the command (no tool prefix required)
+    re.compile(r"(https?://[^\s\"'<>]+)", re.I),
 ]
 
 
 def _extract_urls(cmd: str) -> list[str]:
-    out: list[str] = []
+    """Find all URLs in a shell command string. Dedupes while preserving order."""
+    found: list[str] = []
+    seen: set[str] = set()
     for pat in _NET_PATTERNS:
-        out.extend(pat.findall(cmd) if pat.groups >= 2 else [m for m in pat.findall(cmd) if isinstance(m, str)])
-    # flatten tuples
-    flat: list[str] = []
-    for u in out:
-        if isinstance(u, tuple):
-            flat.extend(u)
-        else:
-            flat.append(u)
-    return [u for u in flat if u.startswith(("http://", "https://"))]
+        for m in pat.finditer(cmd):
+            url = m.group(1)
+            if url.startswith(("http://", "https://")) and url not in seen:
+                found.append(url)
+                seen.add(url)
+    return found
 
 
 def _host(url: str) -> str:
@@ -157,4 +160,12 @@ def evaluate(action: str, payload: dict, cwd: str | None = None) -> Verdict:
         return check_network(payload.get("command", ""))
     if action == "process_kill":
         return check_kill(payload.get("pid", 0))
+    if action == "browser":
+        # Browser navigation: block IPs and unknown hosts, like network calls.
+        # check_network only matches URLs with a scheme, so construct one.
+        host = payload.get("host", "") or payload.get("url", "")
+        if not host:
+            return Verdict(True, "no host in browser payload")
+        url = host if "://" in host else f"https://{host}/"
+        return check_network(f"GET {url}")
     return Verdict(True, f"no gate for action {action}")

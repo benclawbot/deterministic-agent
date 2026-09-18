@@ -55,6 +55,23 @@ def test_kill_requires_confirmation(tmp_path, monkeypatch):
 def test_kill_can_be_disabled(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     cfg = {**preflight.load_config(), "require_confirmation_for_kill": False}
-    v = preflight.evaluate("process_kill", {"pid": 12345}, cwd=str(tmp_path))
     v2 = preflight.check_kill(12345, cfg=cfg)
     assert v2.allow
+
+
+def test_browser_to_unknown_host_blocked(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    v = preflight.evaluate("browser", {"host": "evil.example.com"})
+    assert not v.allow
+
+
+def test_browser_to_allowlisted_host_passes(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    v = preflight.evaluate("browser", {"host": "github.com"})
+    assert v.allow
+
+
+def test_browser_to_ip_literal_blocked(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    v = preflight.evaluate("browser", {"host": "192.168.1.1"})
+    assert not v.allow
