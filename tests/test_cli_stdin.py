@@ -21,6 +21,7 @@ def test_preflight_via_stdin_blocks(cli_path):
         [*CLI, "preflight", "write_file", "-"],
         input=payload.encode(),
         capture_output=True,
+        check=False,
         cwd=cli_path,
     )
     assert r.returncode == 2
@@ -33,6 +34,7 @@ def test_preflight_via_stdin_allows(cli_path):
         [*CLI, "preflight", "terminal", "-"],
         input=payload.encode(),
         capture_output=True,
+        check=False,
         cwd=cli_path,
     )
     assert r.returncode == 0
@@ -46,6 +48,7 @@ def test_replay_via_stdin_blocks_double_dash(cli_path, tmp_path, monkeypatch):
         [*CLI, "replay", "test-skill-stdin", "-", "-"],
         input=b"not json",
         capture_output=True,
+        check=False,
         cwd=cli_path,
     )
     # malformed input → nonzero, but not a Python crash with traceback to user
@@ -59,6 +62,7 @@ def test_validate_via_stdin(cli_path):
         [*CLI, "validate", "web_search", "-"],
         input=result.encode(),
         capture_output=True,
+        check=False,
         cwd=cli_path,
     )
     assert r.returncode == 0

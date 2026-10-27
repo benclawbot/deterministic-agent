@@ -3,7 +3,6 @@ from pathlib import Path
 
 from deterministic_agent import lawlint
 
-
 LAWS_FIXTURE = """# LAWS
 
 ## LAW: every_finding_cites_location

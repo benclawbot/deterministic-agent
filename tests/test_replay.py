@@ -1,9 +1,7 @@
 """Tests for replay regression checks."""
-import os
 from pathlib import Path
 
 import pytest
-
 from deterministic_agent import replay
 
 

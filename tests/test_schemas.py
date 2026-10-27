@@ -1,5 +1,4 @@
 """Tests for schemas.validate."""
-import pytest
 
 from deterministic_agent import schemas
 
@@ -27,7 +26,7 @@ def test_missing_results_field_fails():
 
 
 def test_terminal_schema_requires_exit_code():
-    ok, err = schemas.validate("terminal", {
+    ok, _err = schemas.validate("terminal", {
         "status": "ok",
         "payload": {"output": "hi"},
     })

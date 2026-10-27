@@ -137,7 +137,7 @@ def validate(tool_name: str, result: dict[str, Any]) -> tuple[bool, str | None]:
     """
     try:
         Draft202012Validator(ENVELOPE_SCHEMA).validate(result)
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 - jsonschema raises several unrelated error types
         return False, f"envelope violation in {tool_name}: {e.message}"
 
     schema = TOOL_SCHEMAS.get(tool_name)
@@ -146,7 +146,7 @@ def validate(tool_name: str, result: dict[str, Any]) -> tuple[bool, str | None]:
 
     try:
         Draft202012Validator(schema).validate(result.get("payload", {}))
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 - jsonschema raises several unrelated error types
         return False, f"payload violation in {tool_name}: {e.message}"
 
     return True, None

@@ -85,7 +85,7 @@ def compare(skill: str, inputs: dict, output) -> tuple[bool, str]:
 
     if prev.inputs != inputs:
         record(skill, inputs, output)
-        return True, f"inputs changed since last run; new baseline saved"
+        return True, "inputs changed since last run; new baseline saved"
 
     cur_hash = _hash_output(output)
     if cur_hash == prev.output_hash:

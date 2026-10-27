@@ -1,7 +1,5 @@
 """Tests for preflight gates."""
-import os
 
-import pytest
 
 from deterministic_agent import preflight
 

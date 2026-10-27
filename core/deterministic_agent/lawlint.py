@@ -139,6 +139,6 @@ def check(output: dict, laws: list[Law]) -> list[Violation]:
                             f"{law.message or 'law violated'}: {path}={actual!r}",
                         )
                     )
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001 - a broken check must be reported, not crash the run
                 violations.append(Violation(law.name, f"{path} {op} {value}", f"check errored: {e}"))
     return violations

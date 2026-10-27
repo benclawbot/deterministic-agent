@@ -67,9 +67,9 @@ def _is_under(path: str, roots: list[str], cwd: str) -> bool:
 # back to bare URLs in the command string (for "GET https://x", "POST https://y", etc.).
 _NET_PATTERNS = [
     # tool + URL: curl/wget/nc followed by a URL
-    re.compile(r"\b(?:curl|wget|nc)\b[^|\n;]*?(https?://[^\s\"'<>]+)", re.I),
+    re.compile(r"\b(?:curl|wget|nc)\b[^|\n;]*?(https?://[^\s\"'<>]+)", re.IGNORECASE),
     # bare URL anywhere in the command (no tool prefix required)
-    re.compile(r"(https?://[^\s\"'<>]+)", re.I),
+    re.compile(r"(https?://[^\s\"'<>]+)", re.IGNORECASE),
 ]
 
 
@@ -122,7 +122,7 @@ def check_network(command: str, cfg: dict | None = None) -> Verdict:
     if not urls:
         return Verdict(True)
 
-    allowed = set(h.lower() for h in cfg["allowed_network_hosts"])
+    allowed = {h.lower() for h in cfg["allowed_network_hosts"]}
     for url in urls:
         host = _host(url)
         if not host:
